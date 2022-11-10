@@ -66,26 +66,33 @@ Config.DoorList = {
 	-----------------------------------------------------
 	-- Rhodes Sheriff Office
 	-----------------------------------------------------
-
 	{
-		authorizedJobs = { 'police' },
+		authorizedJobs = { 'police' }, -- front door
 		doorid = 349074475,
-		objCoords  = vector3(1359.71, -1305.97, 76.76),
-		textCoords  = vector3(1358.42, -1305.71, 77.72),
+		objCoords  = vector3(1359.710205078125, -1305.9600830078125, 76.76842498779297),
+		textCoords  = vector3(1359.710205078125, -1305.9600830078125, 77.76842498779297),
 		objYaw = 160.0,
-		locked = false,
+		locked = true,
 		distance = 3.0
 	},
 	{
-		authorizedJobs = { 'police' },
+		authorizedJobs = { 'police' }, -- back door
 		doorid = 1614494720,
-		objCoords  = vector3(1359.12, -1297.56, 76.78),
-		textCoords  = vector3(1358.51, -1298.95,77.78),
+		objCoords = vector3(1359.097900390625, -1297.5343017578125, 76.78761291503906),
+		textCoords = vector3(1359.097900390625, -1297.5343017578125, 77.78761291503906),
 		objYaw = -110.0,
 		locked = true,
 		distance = 3.0
 	},
-
+	{
+		authorizedJobs = { 'police' }, -- cell
+		doorid = 1878514758,
+		objCoords = vector3(1357.3343505859375, -1302.4530029296875, 76.76018524169922),
+		textCoords = vector3(1357.3343505859375, -1302.4530029296875, 76.76018524169922),
+		objYaw = 70.0,
+		locked = true,
+		distance = 1.5
+	},
 	-----------------------------------------------------
 	-- Blackwater Sheriff Office
 	-----------------------------------------------------
