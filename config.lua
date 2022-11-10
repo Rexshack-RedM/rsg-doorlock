@@ -92,21 +92,48 @@ Config.DoorList = {
 	{
 		textCoords = vector3(-757.27, -1269.34, 44.04),
 		authorizedJobs = { 'police' },
-		locked = false,
-		distance = 2.5,
+		locked = true,
+		distance = 3.0,
 		doors = {
 			{
 				objYaw = 90.0,
 				doorid = 3410720590,
-				objCoords = vector3(-757.05, -1268.49, 43.06)
+				objCoords = vector3(-757.0421752929688, -1268.485107421875, 43.068603515625)
 			},
 
 			{
 				objYaw = 90.0,
 				doorid = 3821185084,
-				objCoords = vector3(-757.05, -1269.93, 43.06)
+				objCoords = vector3(-757.0421142578125, -1269.9234619140625, 43.06863021850586)
 			}
 		}
+	},
+	{
+		authorizedJobs = { 'police' }, -- back door
+		doorid = 2810801921,
+		objCoords  = vector3(-769.1370849609375, -1268.7451171875, 43.0400390625),
+		textCoords  = vector3(-769.1370849609375, -1268.7451171875, 44.0400390625),
+		objYaw = -90.0,
+		locked = true,
+		distance = 3.0
+	},
+	{
+		authorizedJobs = { 'police' }, -- cell-1
+		doorid = 2167775834,
+		objCoords  = vector3(-763.52783203125, -1262.4608154296875, 43.02327346801758),
+		textCoords  = vector3(-763.52783203125, -1262.4608154296875, 44.02327346801758),
+		objYaw = -90.0,
+		locked = true,
+		distance = 1.0
+	},
+	{
+		authorizedJobs = { 'police' }, -- cell-2
+		doorid = 2514996159,
+		objCoords  = vector3(-765.8607788085938, -1264.7044677734375, 43.02326965332031),
+		textCoords  = vector3(-765.8607788085938, -1264.7044677734375, 44.02326965332031),
+		objYaw = 90.0,
+		locked = true,
+		distance = 1.0
 	},
 	-----------------------------------------------------
 	-- Strawberry Sheriff Office
