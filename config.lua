@@ -122,14 +122,13 @@ Config.DoorList = {
 	},
 	{
 		authorizedJobs = { 'police' }, -- cell-1
-		doorid = 1821044729,
+		doorid = 902070893,
 		objCoords  = vector3(-1814.40, -353.14, 160.44),
 		textCoords  = vector3(-1814.40, -353.14, 161.44),
 		objYaw = -115.0,
 		locked = true,
 		distance = 1.5
 	},
-
 	{
 		authorizedJobs = { 'police' }, -- cell-2
 		doorid = 1207903970,
