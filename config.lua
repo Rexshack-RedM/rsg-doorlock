@@ -172,4 +172,176 @@ Config.DoorList = {
 		locked = true,
 		distance = 1.5
 	},
+	-----------------------------------------------------
+	-- Saint Denis HQ Office
+	-----------------------------------------------------
+	{ -- outside double doors
+		textCoords = vector3(2516.144287109375, -1309.9276123046875, 48.95257186889648),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = 90.0,
+				doorid = 417663242,
+				objCoords = vector3(2516.144287109375, -1309.9276123046875, 47.95257186889648)
+			},
+
+			{
+				objYaw = -90.0,
+				doorid = 1611175760,
+				objCoords = vector3(2516.14453125, -1307.724853515625, 47.95257186889648)
+			}
+		}
+	},
+	{ -- inside double doors (left)
+		textCoords = vector3(2510.90771484375, -1312.2154541015625, 48.95257186889648),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = -90.0,
+				doorid = 3601535313,
+				objCoords = vector3(2510.90771484375, -1312.2154541015625, 47.95257186889648)
+			},
+
+			{
+				objYaw = -90.0,
+				doorid = 3430284519,
+				objCoords = vector3(2510.90771484375, -1310.4840087890625, 47.95257186889648)
+			}
+		}
+	},
+	{ -- inside double doors (right)
+		textCoords = vector3(2510.90771484375, -1307.141357421875, 48.95716857910156),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = -90.0,
+				doorid = 3124713594,
+				objCoords = vector3(2510.90771484375, -1307.141357421875, 47.95716857910156)
+			},
+
+			{
+				objYaw = -90.0,
+				doorid = 1879655431,
+				objCoords = vector3(2510.90771484375, -1305.41162109375, 47.95716857910156)
+			}
+		}
+	},
+	{ -- outside double doors (side-1)
+		textCoords = vector3(2508.337646484375, -1317.2796630859375, 48.95257186889648),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = 180.0,
+				doorid = 1020479727,
+				objCoords = vector3(2508.337646484375, -1317.2796630859375, 47.95257186889648)
+			},
+
+			{
+				objYaw = 180.0,
+				doorid = 603068205,
+				objCoords = vector3(2506.606201171875, -1317.2796630859375, 47.95257186889648)
+			}
+		}
+	},
+	{ -- outside double doors (side-2)
+		textCoords = vector3(2497.684814453125, -1317.28271484375, 48.95257186889648),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = 180.0,
+				doorid = 305296302,
+				objCoords = vector3(2497.684814453125, -1317.28271484375, 47.95257186889648)
+			},
+
+			{
+				objYaw = 180.0,
+				doorid = 2503834054,
+				objCoords = vector3(2495.953369140625, -1317.28271484375, 47.95257186889648)
+			}
+		}
+	},
+	{ -- outside double doors (back-1)
+		textCoords = vector3(2493.37255859375, -1311.95654296875, 48.95257186889648),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = 90.0,
+				doorid = 1992193795,
+				objCoords = vector3(2493.37255859375, -1311.95654296875, 47.95257186889648)
+			},
+
+			{
+				objYaw = 90.0,
+				doorid = 1694749582,
+				objCoords = vector3(2493.37255859375, -1310.2252197265625, 47.95257186889648)
+			}
+		}
+	},
+	{ -- outside double doors (back-2)
+		textCoords = vector3(2493.37255859375, -1307.41845703125, 48.95257186889648),
+		authorizedJobs = { 'police' },
+		locked = true,
+		distance = 1.5,
+		doors = {
+			{
+				objYaw = 90.0,
+				doorid = 1979938193,
+				objCoords = vector3(2493.37255859375, -1307.41845703125, 47.95257186889648)
+			},
+
+			{
+				objYaw = 90.0,
+				doorid = 1674105116,
+				objCoords = vector3(2493.37255859375, -1305.68701171875, 47.95257186889648)
+			}
+		}
+	},
+	{ -- cell-1
+		authorizedJobs = { 'police' },
+		doorid = 3365520707,
+		objCoords  = vector3(2498.5, -1307.85595703125, 47.95327377319336),
+		textCoords  = vector3(2498.5, -1307.85595703125, 48.95327377319336),
+		objYaw = 0.0,
+		locked = true,
+		distance = 1.0
+	},
+	{ -- cell-2
+		authorizedJobs = { 'police' },
+		doorid = 1995743734,
+		objCoords  = vector3(2499.752197265625, -1309.8763427734375, 47.95327377319336),
+		textCoords  = vector3(2499.752197265625, -1309.8763427734375, 48.95327377319336),
+		objYaw = 180.0,
+		locked = true,
+		distance = 1.0
+	},
+	{ -- cell-3
+		authorizedJobs = { 'police' },
+		doorid = 1711767580,
+		objCoords  = vector3(2502.4296875, -1307.85595703125, 47.95327377319336),
+		textCoords  = vector3(2502.4296875, -1307.85595703125, 48.95327377319336),
+		objYaw = 0.0,
+		locked = true,
+		distance = 1.0
+	},
+	{ -- cell-4
+		authorizedJobs = { 'police' },
+		doorid = 2515591150,
+		objCoords  = vector3(2503.638671875, -1309.8763427734375, 47.95327377319336),
+		textCoords  = vector3(2503.638671875, -1309.8763427734375, 48.95327377319336),
+		objYaw = 180.0,
+		locked = true,
+		distance = 1.0
+	},
 }
