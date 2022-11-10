@@ -108,5 +108,35 @@ Config.DoorList = {
 			}
 		}
 	},
+	-----------------------------------------------------
+	-- Strawberry Sheriff Office
+	-----------------------------------------------------
+	{
+		authorizedJobs = { 'police' }, -- main door
+		doorid = 1821044729,
+		objCoords  = vector3(-1806.67, -350.31, 163.64),
+		textCoords  = vector3(-1806.67, -350.31, 164.64),
+		objYaw = -115.0,
+		locked = true,
+		distance = 3.0
+	},
+	{
+		authorizedJobs = { 'police' }, -- cell-1
+		doorid = 1821044729,
+		objCoords  = vector3(-1814.40, -353.14, 160.44),
+		textCoords  = vector3(-1814.40, -353.14, 161.44),
+		objYaw = -115.0,
+		locked = true,
+		distance = 1.5
+	},
 
+	{
+		authorizedJobs = { 'police' }, -- cell-2
+		doorid = 1207903970,
+		objCoords  = vector3(-1812.01, -351.92, 160.46),
+		textCoords  = vector3(-1812.01, -351.92, 161.46),
+		objYaw = -25.0,
+		locked = true,
+		distance = 1.5
+	},
 }
