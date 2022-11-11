@@ -5,62 +5,59 @@ Config.DoorList = {
 	-----------------------------------------------------
 	-- Valentine Sheriff Office 
 	-----------------------------------------------------
-	{
+	{ -- front door
 		authorizedJobs = { 'police' },
 		doorid = 1988748538,
-		objCoords  = vector3(-276.04, 802.73, 118.41),
-		textCoords  = vector3(-275.02, 802.84, 119.43),
+		objCoords  = vector3(-276.0126037597656, 802.591064453125, 118.41165161132812),
+		textCoords  = vector3(-276.0126037597656, 802.591064453125, 119.41165161132812),
 		objYaw = 10.0,
 		locked = true,
 		distance = 3.0
 	},
-	{
+	{ -- back door
 		authorizedJobs = { 'police' },
 		doorid = 395506985,
-		objCoords  = vector3(-275.85, 812.02, 118.41),
-		textCoords  = vector3(-277.06, 811.83, 119.38),
+		objCoords  = vector3(-275.8447570800781, 812.0270385742188, 118.41483306884766),
+		textCoords  = vector3(-275.8447570800781, 812.0270385742188, 119.41483306884766),
 		objYaw = -170.0,
 		locked = true,
 		distance = 3.0
 	},
-	{
+	{ -- cells back door
 		authorizedJobs = { 'police' },
 		doorid = 1508776842,
-		objCoords  = vector3(-270.77, 810.02, 118.39),
-		textCoords  = vector3(-270.77, 810.02, 118.39),
+		objCoords  = vector3(-270.76641845703125, 810.0264892578125, 118.39580535888672),
+		textCoords  = vector3(-270.76641845703125, 810.0264892578125, 119.39580535888672),
 		objYaw = -80.0,
 		locked = true,
-		distance = 1.5
+		distance = 1.0
 	},
-
-	--cell area
-	{
+	{ --cell area
 		authorizedJobs = { 'police' },
 		doorid = 535323366,
-		objCoords  = vector3(-275.03, 809.27, 118.36),
-		textCoords  = vector3(-274.89, 808.03, 119.39),
+		objCoords  = vector3(-275.0232849121094, 809.2740478515625, 118.36856842041016),
+		textCoords  = vector3(-275.0232849121094, 809.2740478515625, 119.36856842041016),
 		objYaw = -80.0,
 		locked = true,
-		distance = 2
+		distance = 2.0
 	},
-	--cells
-	{
+	{ --cell-1
 		authorizedJobs = { 'police' },
 		doorid = 295355979,
-		objCoords  = vector3(-273.47, 809.96, 118.36),
-		textCoords  = vector3(-272.23, 810.1, 119.39),
+		objCoords  = vector3(-273.4643249511719, 809.966064453125, 118.36823272705078),
+		textCoords  = vector3(-273.4643249511719, 809.966064453125, 119.36823272705078),
 		objYaw = 10.0,
 		locked = true,
-		distance = 1.5
+		distance = 1.0
 	},
-	{
+	{ -- cell-2
 		authorizedJobs = { 'police' },
 		doorid = 193903155,
-		objCoords  = vector3(-272.06, 808.25, 118.36),
-		textCoords  = vector3(-273.3, 808.12, 119.39),
+		objCoords  = vector3(-272.0520935058594, 808.25830078125, 118.36851501464844),
+		textCoords  = vector3(-272.0520935058594, 808.25830078125, 119.36851501464844),
 		objYaw = -170.0,
 		locked = true,
-		distance = 1.5
+		distance = 1.0
 	},
 
 	-----------------------------------------------------
@@ -145,32 +142,41 @@ Config.DoorList = {
 	-----------------------------------------------------
 	-- Strawberry Sheriff Office
 	-----------------------------------------------------
-	{
-		authorizedJobs = { 'police' }, -- main door
+	{ -- front door
+		authorizedJobs = { 'police' },
 		doorid = 1821044729,
-		objCoords  = vector3(-1806.67, -350.31, 163.64),
-		textCoords  = vector3(-1806.67, -350.31, 164.64),
+		objCoords  = vector3(-1806.6751708984375, -350.31280517578125, 163.64759826660156),
+		textCoords  = vector3(-1806.6751708984375, -350.31280517578125, 164.64759826660156),
 		objYaw = -115.0,
 		locked = true,
 		distance = 3.0
 	},
-	{
-		authorizedJobs = { 'police' }, -- cell-1
+	{ -- cell-1
+		authorizedJobs = { 'police' },
 		doorid = 902070893,
-		objCoords  = vector3(-1814.40, -353.14, 160.44),
-		textCoords  = vector3(-1814.40, -353.14, 161.44),
+		objCoords  = vector3(-1814.400390625, -353.1470947265625, 160.44180297851562),
+		textCoords  = vector3(-1814.400390625, -353.1470947265625, 161.44180297851562),
 		objYaw = -115.0,
 		locked = true,
 		distance = 1.5
 	},
-	{
-		authorizedJobs = { 'police' }, -- cell-2
+	{  -- cell-2
+		authorizedJobs = { 'police' },
 		doorid = 1207903970,
-		objCoords  = vector3(-1812.01, -351.92, 160.46),
-		textCoords  = vector3(-1812.01, -351.92, 161.46),
+		objCoords  = vector3(-1812.0101318359375, -351.92095947265625, 160.46839904785156),
+		textCoords  = vector3(-1812.0101318359375, -351.92095947265625, 161.46839904785156),
 		objYaw = -25.0,
 		locked = true,
 		distance = 1.5
+	},
+	{ -- back door
+		authorizedJobs = { 'police' },
+		doorid = 1514359658,
+		objCoords  = vector3(-1812.669189453125, -345.08489990234375, 163.64759826660156),
+		textCoords  = vector3(-1812.669189453125, -345.08489990234375, 164.64759826660156),
+		objYaw = -115.0,
+		locked = true,
+		distance = 3.0
 	},
 	-----------------------------------------------------
 	-- Saint Denis HQ Office
