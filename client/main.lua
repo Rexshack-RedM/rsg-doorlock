@@ -1,4 +1,4 @@
-local QRCore = exports['qr-core']:GetCoreObject()
+local RSGCore = exports['rsg-core']:GetCoreObject()
 local CoolDown = 0
 
 Citizen.CreateThread(function()
@@ -89,7 +89,7 @@ Citizen.CreateThread(function()
 			if distance < maxDistance then
 				if distance < 1.75 then
 					DrawText3Ds(doorID.textCoords.x, doorID.textCoords.y, doorID.textCoords.z, " " ,doorID.locked)
-					if IsControlJustPressed(0, QRCore.Shared.Keybinds['U']) and CoolDown < 1 then
+					if IsControlJustPressed(0, RSGCore.Shared.Keybinds['U']) and CoolDown < 1 then
 						CoolDown = 1000
 						local state = not doorID.locked
 						TriggerServerEvent("rsg-doorlock:updatedoorsv", k, state)

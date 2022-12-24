@@ -1,13 +1,13 @@
-local QRCore = exports['qr-core']:GetCoreObject()
+local RSGCore = exports['rsg-core']:GetCoreObject()
 
 local DoorInfo	= {}
 
 RegisterServerEvent('rsg-doorlock:updatedoorsv')
 AddEventHandler('rsg-doorlock:updatedoorsv', function(doorID, state, cb)
     local src = source
-	local Player = QRCore.Functions.GetPlayer(src)
+	local Player = RSGCore.Functions.GetPlayer(src)
 	if not IsAuthorized(Player.PlayerData.job.name, Config.DoorList[doorID]) then
-		TriggerClientEvent('QRCore:Notify', src, Lang:t("error.nokey"), 'error')
+		TriggerClientEvent('RSGCore:Notify', src, Lang:t("error.nokey"), 'error')
             return
         else
             TriggerClientEvent('rsg-doorlock:changedoor', src, doorID, state)
@@ -17,7 +17,7 @@ end)
 RegisterServerEvent('rsg-doorlock:updateState')
 AddEventHandler('rsg-doorlock:updateState', function(doorID, state, cb)
     local src = source
-	local Player = QRCore.Functions.GetPlayer(src)
+	local Player = RSGCore.Functions.GetPlayer(src)
 	if type(doorID) ~= 'number' then
 			return
 		end

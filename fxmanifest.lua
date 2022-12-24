@@ -7,7 +7,7 @@ server_scripts {
 }
 
 shared_scripts {
-	'@qr-core/shared/locale.lua',
+	'@rsg-core/shared/locale.lua',
 	'locales/en.lua',
 	'config.lua'
 }
@@ -16,4 +16,4 @@ client_scripts {
 	'client/main.lua'
 }
 
-dependency 'qr-core'
+dependency 'rsg-core'
