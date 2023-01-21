@@ -49,7 +49,11 @@ Citizen.CreateThread(function()
                                 Citizen.InvokeNative(0xD99229FE93B46286, v.doorid,1,1,0,0,0,0)
                                 Citizen.InvokeNative(0x6BAB9442830C7F53, v.doorid, 3)
                             end
-                            Citizen.InvokeNative(0xB6E6FBA95C7324AC, v.doorid, 0.0, true)
+                            local current = GetEntityRotation(v.object).z - v.objYaw
+                            if v.objYaw and current > 0.5 or current < -0.5 then
+                                SetEntityRotation(v.object, 0.0, 0.0, v.objYaw, 2, true)
+                            end
+                            FreezeEntityPosition(v.object,true)
                         end
                     else
                         for _,v in ipairs(doorID.doors) do
@@ -67,7 +71,11 @@ Citizen.CreateThread(function()
                             Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid,1,1,0,0,0,0)
                             Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 3)
                         end
-                        Citizen.InvokeNative(0xB6E6FBA95C7324AC, doorID.doorid, 0.0, true)
+                        local current = GetEntityRotation(doorID.object).z - doorID.objYaw
+                        if doorID.objYaw and current > 0.5 or current < -0.5 then
+                            SetEntityRotation(doorID.object, 0.0, 0.0, doorID.objYaw, 2, true)
+                        end
+                        FreezeEntityPosition(doorID.object,true)
                     else
                         if Citizen.InvokeNative(0x160AA1B32F6139B8, doorID.doorid) ~= false then
                             Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid,1,1,0,0,0,0)
