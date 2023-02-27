@@ -75,6 +75,7 @@ Citizen.CreateThread(function()
                                 Citizen.InvokeNative(0x6BAB9442830C7F53, doors.doorid, 3)
                             end
                             Citizen.InvokeNative(0xB6E6FBA95C7324AC, doors.doorid, 0.0, true)
+                            doorStatus = '~e~Locked~q~'
                         end
                     else
                         for i = 1, #doorID.doors do
@@ -86,6 +87,7 @@ Citizen.CreateThread(function()
                             end
                         end
                         FreezeEntityPosition(doorID.object, false)
+                        doorStatus = '~t6~Unlocked~q~'
                     end
 
                 else
