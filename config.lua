@@ -426,11 +426,11 @@ Config.DoorList = {
         distance = 1.5
     },
     {
-        authorizedJobs = { 'police' }, -- West Tower
-        doorid = 559643844,
-        objCoords  = vector3(3318.50, -658.01, 44.88),
-        textCoords  = vector3(3318.50, -658.01, 44.88),
-        objYaw = 59.99,
+        authorizedJobs = { 'police' },
+        doorid = -1694920053,
+        objCoords  = vector3(3318.453125, -658.0032348632812, 44.8508186340332),
+        textCoords  = vector3(3318.453125, -658.0032348632812, 44.8508186340332),
+        objYaw = 59.9998550415039,
         locked = true,
         distance = 1.5
     },
