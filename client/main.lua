@@ -62,7 +62,7 @@ Citizen.CreateThread(function()
                 maxDistance = doorID.distance
             end
 
-            if distance < 50 then
+            if distance < 5 then
                 letSleep = false
 
                 if doorID.doors then
