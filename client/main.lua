@@ -52,7 +52,15 @@ Citizen.CreateThread(function()
 
     while true do
         Wait(4)
-        local playerCoords, letSleep = GetEntityCoords(PlayerPedId()), true
+        local ped = PlayerPedId()
+        local isdead = IsEntityDead(ped)
+        local cuffed = IsPedCuffed(ped)
+        local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, ped)
+        local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, ped)
+        local playerCoords, letSleep = GetEntityCoords(ped), true
+        local breakdown = isdead or cuffed or hogtied or lassoed
+
+        if breakdown then goto continue end
 
         for k,doorID in ipairs(Config.DoorList) do
             local distance = #(playerCoords - doorID.textCoords)
@@ -127,6 +135,8 @@ Citizen.CreateThread(function()
                 CoolDown = CoolDown - 1
             end
         end
+
+        ::continue::
 
         if letSleep then
             Wait(500)
