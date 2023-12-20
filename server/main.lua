@@ -38,7 +38,7 @@ AddEventHandler('rsg-doorlock:updatedoorsv', function(doorID, state, cb)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
     if not IsAuthorized(Player.PlayerData.job.name, Config.DoorList[doorID]) then
-        TriggerClientEvent('RSGCore:Notify', src, Lang:t("error.nokey"), 'error')
+        TriggerClientEvent('ox_lib:notify', src, {title = Lang:t("error.nokey"), type = 'error', duration = 5000 })
             return
         else
             TriggerClientEvent('rsg-doorlock:changedoor', src, doorID, state)
