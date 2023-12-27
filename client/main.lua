@@ -15,7 +15,7 @@ Citizen.CreateThread(function()
 end)
 
 local DoorLockPrompt = function()
-    local str = 'Use'
+    local str = Lang:t('primary.use_door')
     local stra = CreateVarString(10, 'LITERAL_STRING', str)
 
     lockPrompt = PromptRegisterBegin()
@@ -91,7 +91,7 @@ Citizen.CreateThread(function()
                                 Citizen.InvokeNative(0x6BAB9442830C7F53, doors.doorid, 3)
                             end
                             Citizen.InvokeNative(0xB6E6FBA95C7324AC, doors.doorid, 0.0, true)
-                            doorStatus = '~e~Locked~q~'
+                            doorStatus = '~e~'..Lang:t('primary.door_status_lock')..'~q~'
                         end
                     else
                         for i = 1, #doorID.doors do
@@ -103,7 +103,7 @@ Citizen.CreateThread(function()
                             end
                         end
                         FreezeEntityPosition(doorID.object, false)
-                        doorStatus = '~t6~Unlocked~q~'
+                        doorStatus = '~t6~'..Lang:t('primary.door_status_unlock')..'~q~'
                     end
 
                 else
@@ -113,21 +113,21 @@ Citizen.CreateThread(function()
                             Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 3)
                         end
                         Citizen.InvokeNative(0xB6E6FBA95C7324AC, doorID.doorid, 0.0, true)
-                        doorStatus = '~e~Locked~q~'
+                        doorStatus = '~e~'..Lang:t('primary.door_status_lock')..'~q~'
                     else
                         if Citizen.InvokeNative(0x160AA1B32F6139B8, doorID.doorid) ~= false then
                             Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid,1,1,0,0,0,0)
                             Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 0)
                         end
                         FreezeEntityPosition(doorID.object,false)
-                        doorStatus = '~t6~Unlocked~q~'
+                        doorStatus = '~t6~'..Lang:t('primary.door_status_unlock')..'~q~'
                     end
                 end
             end
 
             if distance < maxDistance then
                 if distance < 1.5 then
-                    local label = CreateVarString(10, 'LITERAL_STRING', 'Door Status: '..doorStatus)
+                    local label = CreateVarString(10, 'LITERAL_STRING', Lang:t('primary.door_status_base')..doorStatus)
 
                     PromptSetActiveGroupThisFrame(doorLockPrompt, label)
 
