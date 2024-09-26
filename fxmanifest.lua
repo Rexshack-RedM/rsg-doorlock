@@ -6,7 +6,8 @@ description 'rsg-doorlock'
 version '1.0.3'
 
 server_scripts {
-    'server/main.lua'
+    'server/main.lua',
+    'server/versionchecker.lua'
 }
 
 shared_scripts {
