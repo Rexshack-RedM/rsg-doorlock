@@ -9,7 +9,14 @@ info = {
     unlocked = "destrancado",
     unlocking = "Destrancando",
     locking = "Trancando",
-}
+},
+
+primary = {
+    use_door = 'Usar',
+    door_status_base = 'A porta está: ',
+    door_status_lock = 'Fechada',
+    door_status_unlock = 'Aberta',
+},
 
 }
 
@@ -20,3 +27,4 @@ if GetConvar('rsg_locale', 'en') == 'pt-br' then
         fallbackLang = Lang,
     })
 end
+
