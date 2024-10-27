@@ -1,10 +1,10 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
-
 local CoolDown = 0
 local doorLockPrompt = GetRandomIntInRange(0, 0xffffff)
 local lockPrompt = nil
 local doorStatus = ''
 local createdEntries = {}
+lib.locale()
 
 -- lock jail front gates
 Citizen.CreateThread(function()
@@ -15,7 +15,7 @@ Citizen.CreateThread(function()
 end)
 
 local DoorLockPrompt = function()
-    local str = Lang:t('primary.use_door')
+    local str = locale('cl_use_door')
     local stra = CreateVarString(10, 'LITERAL_STRING', str)
 
     lockPrompt = PromptRegisterBegin()
@@ -60,12 +60,11 @@ Citizen.CreateThread(function()
 
     while true do
         Wait(4)
-        local ped = PlayerPedId()
-        local isdead = IsEntityDead(ped)
-        local cuffed = IsPedCuffed(ped)
-        local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, ped)
-        local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, ped)
-        local playerCoords, letSleep = GetEntityCoords(ped), true
+        local isdead = IsEntityDead(cahce.ped)
+        local cuffed = IsPedCuffed(cahce.ped)
+        local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, cahce.ped)
+        local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, cahce.ped)
+        local playerCoords, letSleep = GetEntityCoords(cahce.ped), true
         local breakdown = isdead or cuffed or hogtied or lassoed
 
         if breakdown then goto continue end
@@ -87,47 +86,47 @@ Citizen.CreateThread(function()
                             local doors = doorID.doors[i]
 
                             if Citizen.InvokeNative(0x160AA1B32F6139B8, doors.doorid) ~= 3 then
-                                Citizen.InvokeNative(0xD99229FE93B46286, doors.doorid,1,1,0,0,0,0)
+                                Citizen.InvokeNative(0xD99229FE93B46286, doors.doorid, 1, 1, 0, 0, 0, 0)
                                 Citizen.InvokeNative(0x6BAB9442830C7F53, doors.doorid, 3)
                             end
                             Citizen.InvokeNative(0xB6E6FBA95C7324AC, doors.doorid, 0.0, true)
-                            doorStatus = '~e~'..Lang:t('primary.door_status_lock')..'~q~'
+                            doorStatus = locale('cl_door_status_lock')
                         end
                     else
                         for i = 1, #doorID.doors do
                             local doors = doorID.doors[i]
 
                             if Citizen.InvokeNative(0x160AA1B32F6139B8, doors.doorid) ~= false then
-                                Citizen.InvokeNative(0xD99229FE93B46286, doors.doorid,1,1,0,0,0,0)
+                                Citizen.InvokeNative(0xD99229FE93B46286, doors.doorid, 1, 1, 0, 0, 0, 0)
                                 Citizen.InvokeNative(0x6BAB9442830C7F53, doors.doorid, 0)
                             end
                         end
                         FreezeEntityPosition(doorID.object, false)
-                        doorStatus = '~t6~'..Lang:t('primary.door_status_unlock')..'~q~'
+                        doorStatus = locale('cl_door_status_unlock')
                     end
 
                 else
                     if doorID.locked then
                         if Citizen.InvokeNative(0x160AA1B32F6139B8, doorID.doorid) ~= 3 then
-                            Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid,1,1,0,0,0,0)
+                            Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid, 1, 1, 0, 0, 0, 0)
                             Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 3)
                         end
                         Citizen.InvokeNative(0xB6E6FBA95C7324AC, doorID.doorid, 0.0, true)
-                        doorStatus = '~e~'..Lang:t('primary.door_status_lock')..'~q~'
+                        doorStatus = locale('cl_door_status_lock')
                     else
                         if Citizen.InvokeNative(0x160AA1B32F6139B8, doorID.doorid) ~= false then
-                            Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid,1,1,0,0,0,0)
+                            Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid, 1, 1, 0, 0, 0, 0)
                             Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 0)
                         end
                         FreezeEntityPosition(doorID.object,false)
-                        doorStatus = '~t6~'..Lang:t('primary.door_status_unlock')..'~q~'
+                        doorStatus = locale('cl_door_status_unlock')
                     end
                 end
             end
 
             if distance < maxDistance then
                 if distance < 1.5 then
-                    local label = CreateVarString(10, 'LITERAL_STRING', Lang:t('primary.door_status_base')..doorStatus)
+                    local label = CreateVarString(10, 'LITERAL_STRING', locale('cl_door_status_base') .. ' '..doorStatus)
 
                     PromptSetActiveGroupThisFrame(doorLockPrompt, label)
 
@@ -154,20 +153,19 @@ end)
 
 RegisterNetEvent('rsg-doorlock:changedoor')
 AddEventHandler('rsg-doorlock:changedoor', function(doorID, state)
-    local ped = PlayerPedId()
-    local pedCoords = GetEntityCoords(ped, true)
+    local pedCoords = GetEntityCoords(cahce.ped, true)
     local prop_name = GetHashKey('P_KEY02X')
     local doorCoords = Config.DoorList[doorID].textCoords
     local dx = doorCoords.x - pedCoords.x
     local dy = doorCoords.y - pedCoords.y
     local heading = GetHeadingFromVector_2d(dx, dy)
-    local x, y, z = table.unpack(GetEntityCoords(ped, true))
+    local x, y, z = table.unpack(GetEntityCoords(cahce.ped, true))
     local prop = CreateObject(prop_name, x, y, z + 0.2, true, true, true)
-    local boneIndex = GetEntityBoneIndexByName(ped, "SKEL_R_Finger12")
+    local boneIndex = GetEntityBoneIndexByName(cahce.ped, "SKEL_R_Finger12")
 
-    SetPedDesiredHeading(ped, heading)
+    SetPedDesiredHeading(cahce.ped, heading)
 
-    if not IsEntityPlayingAnim(ped, "script_common@jail_cell@unlock@key", "action", 3) then
+    if not IsEntityPlayingAnim(cahce.ped, "script_common@jail_cell@unlock@key", "action", 3) then
         if not HasAnimDictLoaded("script_common@jail_cell@unlock@key") then
             RequestAnimDict("script_common@jail_cell@unlock@key")
 
@@ -178,14 +176,14 @@ AddEventHandler('rsg-doorlock:changedoor', function(doorID, state)
         end
 
         Wait(100)
-        TaskPlayAnim(ped, 'script_common@jail_cell@unlock@key', 'action', 8.0, -8.0, 2500, 31, 0, true, 0, false, 0, false)
+        TaskPlayAnim(cahce.ped, 'script_common@jail_cell@unlock@key', 'action', 8.0, -8.0, 2500, 31, 0, true, 0, false, 0, false)
         RemoveAnimDict("script_common@jail_cell@unlock@key")
         Wait(750)
-        AttachEntityToEntity(prop, ped,boneIndex, 0.02, 0.0120, -0.00850, 0.024, -160.0, 200.0, true, true, false, true, 1, true)
+        AttachEntityToEntity(prop, cahce.ped, boneIndex, 0.02, 0.0120, -0.00850, 0.024, -160.0, 200.0, true, true, false, true, 1, true)
         Wait(250)
         TriggerServerEvent('rsg-doorlock:updateState', doorID, state, function(cb) end)
         Wait(1500)
-        ClearPedSecondaryTask(ped)
+        ClearPedSecondaryTask(cahce.ped)
         DeleteObject(prop)
     end
 end)

@@ -5,15 +5,8 @@ game 'rdr3'
 description 'rsg-doorlock'
 version '1.0.3'
 
-server_scripts {
-    'server/main.lua',
-    'server/versionchecker.lua'
-}
-
 shared_scripts {
-    '@rsg-core/shared/locale.lua',
-    'locales/en.lua',
-    'locales/*.lua',
+    '@ox_lib/init.lua',
     'config.lua'
 }
 
@@ -21,6 +14,18 @@ client_scripts {
     'client/main.lua'
 }
 
-dependency 'rsg-core'
+server_scripts {
+    'server/main.lua',
+    'server/versionchecker.lua'
+}
+
+files {
+    'locales/*.json',
+}
+
+dependency {
+    'rsg-core',
+    'ox_lib'
+}
 
 lua54 'yes'
