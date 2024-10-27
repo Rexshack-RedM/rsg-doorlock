@@ -60,11 +60,11 @@ Citizen.CreateThread(function()
 
     while true do
         Wait(4)
-        local isdead = IsEntityDead(cahce.ped)
-        local cuffed = IsPedCuffed(cahce.ped)
-        local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, cahce.ped)
-        local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, cahce.ped)
-        local playerCoords, letSleep = GetEntityCoords(cahce.ped), true
+        local isdead = IsEntityDead(cache.ped)
+        local cuffed = IsPedCuffed(cache.ped)
+        local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, cache.ped)
+        local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, cache.ped)
+        local playerCoords, letSleep = GetEntityCoords(cache.ped), true
         local breakdown = isdead or cuffed or hogtied or lassoed
 
         if breakdown then goto continue end
@@ -153,19 +153,19 @@ end)
 
 RegisterNetEvent('rsg-doorlock:changedoor')
 AddEventHandler('rsg-doorlock:changedoor', function(doorID, state)
-    local pedCoords = GetEntityCoords(cahce.ped, true)
+    local pedCoords = GetEntityCoords(cache.ped, true)
     local prop_name = GetHashKey('P_KEY02X')
     local doorCoords = Config.DoorList[doorID].textCoords
     local dx = doorCoords.x - pedCoords.x
     local dy = doorCoords.y - pedCoords.y
     local heading = GetHeadingFromVector_2d(dx, dy)
-    local x, y, z = table.unpack(GetEntityCoords(cahce.ped, true))
+    local x, y, z = table.unpack(GetEntityCoords(cache.ped, true))
     local prop = CreateObject(prop_name, x, y, z + 0.2, true, true, true)
-    local boneIndex = GetEntityBoneIndexByName(cahce.ped, "SKEL_R_Finger12")
+    local boneIndex = GetEntityBoneIndexByName(cache.ped, "SKEL_R_Finger12")
 
-    SetPedDesiredHeading(cahce.ped, heading)
+    SetPedDesiredHeading(cache.ped, heading)
 
-    if not IsEntityPlayingAnim(cahce.ped, "script_common@jail_cell@unlock@key", "action", 3) then
+    if not IsEntityPlayingAnim(cache.ped, "script_common@jail_cell@unlock@key", "action", 3) then
         if not HasAnimDictLoaded("script_common@jail_cell@unlock@key") then
             RequestAnimDict("script_common@jail_cell@unlock@key")
 
@@ -176,14 +176,14 @@ AddEventHandler('rsg-doorlock:changedoor', function(doorID, state)
         end
 
         Wait(100)
-        TaskPlayAnim(cahce.ped, 'script_common@jail_cell@unlock@key', 'action', 8.0, -8.0, 2500, 31, 0, true, 0, false, 0, false)
+        TaskPlayAnim(cache.ped, 'script_common@jail_cell@unlock@key', 'action', 8.0, -8.0, 2500, 31, 0, true, 0, false, 0, false)
         RemoveAnimDict("script_common@jail_cell@unlock@key")
         Wait(750)
-        AttachEntityToEntity(prop, cahce.ped, boneIndex, 0.02, 0.0120, -0.00850, 0.024, -160.0, 200.0, true, true, false, true, 1, true)
+        AttachEntityToEntity(prop, cache.ped, boneIndex, 0.02, 0.0120, -0.00850, 0.024, -160.0, 200.0, true, true, false, true, 1, true)
         Wait(250)
         TriggerServerEvent('rsg-doorlock:updateState', doorID, state, function(cb) end)
         Wait(1500)
-        ClearPedSecondaryTask(cahce.ped)
+        ClearPedSecondaryTask(cache.ped)
         DeleteObject(prop)
     end
 end)
