@@ -1,6 +1,7 @@
-Config = {}
-
-Config.DoorList = {
+-- Server-only seed list. Imported ONCE into the rsg_doorlocks table when it is empty
+-- (Config.ImportConfigDoors). After that, manage doors in game with /doorlock.
+-- authorizedJobs = {} means nobody can open the door (e.g. Sisika prison)
+SeedDoors = {
 
     -----------------------------------------------------
     -- Valentine Sheriff Office 
@@ -434,12 +435,4 @@ Config.DoorList = {
         locked = true,
         distance = 1.5
     },
-}
-
-Config.JailDoors = {
-    -- main front gates
-    906662604, -- -1819721708 : p_sis_frontgateb_r
-    1121239638, -- -1819721708 : p_sis_frontgateb_r
-    2617210026, -- 1692000954 : p_sis_frontgateb_l
-    3984556459, -- 1692000954 : p_sis_frontgateb_l
 }

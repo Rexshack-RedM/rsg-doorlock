@@ -1,205 +1,160 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
-local CoolDown = 0
-local doorLockPrompt = GetRandomIntInRange(0, 0xffffff)
-local lockPrompt = nil
-local doorStatus = ''
-local createdEntries = {}
 lib.locale()
 
--- lock jail front gates
-Citizen.CreateThread(function()
-    for k,v in pairs(Config.JailDoors) do
-        Citizen.InvokeNative(0xD99229FE93B46286,v,1,1,0,0,0,0)
-        Citizen.InvokeNative(0x6BAB9442830C7F53,v,1)
+local DOOR_LOCKED, DOOR_UNLOCKED = 3, 0
+local promptGroup = GetRandomIntInRange(0, 0xffffff)
+local lockPrompt
+local nearestDoor
+local busy = false
+
+Doors = {} -- shared with client/editor.lua
+
+---------------------------------------------
+-- door system helpers
+---------------------------------------------
+local function setDoorHash(hash, locked)
+    if not IsDoorRegisteredWithSystem(hash) then
+        Citizen.InvokeNative(0xD99229FE93B46286, hash, 1, 1, 0, 0, 0, 0) -- AddDoorToSystemNew
     end
-end)
-
-local DoorLockPrompt = function()
-    local str = locale('cl_use_door')
-    local stra = CreateVarString(10, 'LITERAL_STRING', str)
-
-    lockPrompt = PromptRegisterBegin()
-    PromptSetControlAction(lockPrompt, RSGCore.Shared.Keybinds['ENTER'])
-    PromptSetText(lockPrompt, stra)
-    PromptSetEnabled(lockPrompt, 1)
-    PromptSetVisible(lockPrompt, 1)
-    PromptSetHoldMode(lockPrompt, true)
-    PromptSetGroup(lockPrompt, doorLockPrompt)
-    PromptRegisterEnd(lockPrompt)
-
-    createdEntries[#createdEntries + 1] = {type = "PROMPT", handle = lockPrompt}
-    createdEntries[#createdEntries + 1] = {type = "PROMPT", handle = doorLockPrompt}
+    local wanted = locked and DOOR_LOCKED or DOOR_UNLOCKED
+    if DoorSystemGetDoorState(hash) ~= wanted then
+        DoorSystemSetDoorState(hash, wanted)
+        if locked then DoorSystemSetOpenRatio(hash, 0.0, true) end
+    end
 end
 
+local function applyDoor(door, forceUnlock)
+    for i = 1, #door.doors do
+        setDoorHash(door.doors[i].hash, not forceUnlock and door.locked)
+    end
+end
+
+---------------------------------------------
+-- prompt
+---------------------------------------------
+local function createPrompt()
+    lockPrompt = PromptRegisterBegin()
+    PromptSetControlAction(lockPrompt, RSGCore.Shared.Keybinds['ENTER'])
+    PromptSetText(lockPrompt, CreateVarString(10, 'LITERAL_STRING', locale('cl_use_door')))
+    PromptSetEnabled(lockPrompt, true)
+    PromptSetVisible(lockPrompt, true)
+    PromptSetHoldMode(lockPrompt, true)
+    PromptSetGroup(lockPrompt, promptGroup)
+    PromptRegisterEnd(lockPrompt)
+end
+
+local function canUseDoors()
+    local ped = cache.ped
+    return not (IsEntityDead(ped)
+        or IsPedCuffed(ped)
+        or Citizen.InvokeNative(0x3AA24CCC0D451379, ped) -- IsPedHogtied
+        or Citizen.InvokeNative(0x9682F850056C9ADE, ped)) -- IsPedLassoed
+end
+
+---------------------------------------------
+-- init
+---------------------------------------------
+CreateThread(function()
+    for _, hash in ipairs(Config.JailDoors) do
+        Citizen.InvokeNative(0xD99229FE93B46286, hash, 1, 1, 0, 0, 0, 0)
+        DoorSystemSetDoorState(hash, 1)
+    end
+    Doors = lib.callback.await('rsg-doorlock:server:getDoors', false) or {}
+    createPrompt()
+end)
+
+-- slow loop: find nearest door, keep nearby doors in the right state
 CreateThread(function()
     while true do
-        for _, doorID in pairs(Config.DoorList) do
-            if doorID.doors then
-                for _, v in pairs(doorID.doors) do
-                    if not v.object or not DoesEntityExist(v.object) then
-                        local shapeTest = StartShapeTestBox(v.objCoords, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, true, 16)
-                        local _, _, _, _, entityHit = GetShapeTestResult(shapeTest)
-                        v.object = entityHit
-                    end
-                end
-            else
-                if not doorID.object or not DoesEntityExist(doorID.object) then
-                    local shapeTest = StartShapeTestBox(doorID.objCoords, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, true, 16)
-                    local _, _, _, _, entityHit = GetShapeTestResult(shapeTest)
-                    doorID.object = entityHit
+        local coords = GetEntityCoords(cache.ped)
+        local closest, closestDist
+        for id, door in pairs(Doors) do
+            local dist = #(coords - door.textCoords)
+            if dist < Config.SyncDistance then
+                applyDoor(door)
+                if dist < door.distance and (not closestDist or dist < closestDist) then
+                    closest, closestDist = id, dist
                 end
             end
         end
-
-        Wait(1000)
+        nearestDoor = closest
+        Wait(500)
     end
 end)
 
-Citizen.CreateThread(function()
-    DoorLockPrompt()
-
+-- fast loop: only runs while next to a door
+CreateThread(function()
     while true do
-        Wait(4)
-        local isdead = IsEntityDead(cache.ped)
-        local cuffed = IsPedCuffed(cache.ped)
-        local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, cache.ped)
-        local lassoed = Citizen.InvokeNative(0x9682F850056C9ADE, cache.ped)
-        local playerCoords, letSleep = GetEntityCoords(cache.ped), true
-        local breakdown = isdead or cuffed or hogtied or lassoed
-
-        if breakdown then goto continue end
-
-        for k,doorID in ipairs(Config.DoorList) do
-            local distance = #(playerCoords - doorID.textCoords)
-            local maxDistance = 1.25
-
-            if doorID.distance then
-                maxDistance = doorID.distance
+        local door = nearestDoor and Doors[nearestDoor]
+        if door and lockPrompt and not busy and not LocalPlayer.state.doorEditor and canUseDoors() then
+            local status = door.locked and locale('cl_door_status_lock') or locale('cl_door_status_unlock')
+            PromptSetActiveGroupThisFrame(promptGroup, CreateVarString(10, 'LITERAL_STRING', locale('cl_door_status_base', status)))
+            if PromptHasHoldModeCompleted(lockPrompt) then
+                busy = true
+                TriggerServerEvent('rsg-doorlock:server:requestToggle', nearestDoor)
+                -- wait for the key to be released so one long hold can't toggle twice
+                CreateThread(function()
+                    Wait(1500)
+                    while PromptHasHoldModeCompleted(lockPrompt) do Wait(50) end
+                    busy = false
+                end)
             end
-
-            if distance < 5 then
-                letSleep = false
-
-                if doorID.doors then
-                    if doorID.locked then
-                        for i = 1, #doorID.doors do
-                            local doors = doorID.doors[i]
-
-                            if Citizen.InvokeNative(0x160AA1B32F6139B8, doors.doorid) ~= 3 then
-                                Citizen.InvokeNative(0xD99229FE93B46286, doors.doorid, 1, 1, 0, 0, 0, 0)
-                                Citizen.InvokeNative(0x6BAB9442830C7F53, doors.doorid, 3)
-                            end
-                            Citizen.InvokeNative(0xB6E6FBA95C7324AC, doors.doorid, 0.0, true)
-                            doorStatus = locale('cl_door_status_lock')
-                        end
-                    else
-                        for i = 1, #doorID.doors do
-                            local doors = doorID.doors[i]
-
-                            if Citizen.InvokeNative(0x160AA1B32F6139B8, doors.doorid) ~= false then
-                                Citizen.InvokeNative(0xD99229FE93B46286, doors.doorid, 1, 1, 0, 0, 0, 0)
-                                Citizen.InvokeNative(0x6BAB9442830C7F53, doors.doorid, 0)
-                            end
-                        end
-                        FreezeEntityPosition(doorID.object, false)
-                        doorStatus = locale('cl_door_status_unlock')
-                    end
-
-                else
-                    if doorID.locked then
-                        if Citizen.InvokeNative(0x160AA1B32F6139B8, doorID.doorid) ~= 3 then
-                            Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid, 1, 1, 0, 0, 0, 0)
-                            Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 3)
-                        end
-                        Citizen.InvokeNative(0xB6E6FBA95C7324AC, doorID.doorid, 0.0, true)
-                        doorStatus = locale('cl_door_status_lock')
-                    else
-                        if Citizen.InvokeNative(0x160AA1B32F6139B8, doorID.doorid) ~= false then
-                            Citizen.InvokeNative(0xD99229FE93B46286, doorID.doorid, 1, 1, 0, 0, 0, 0)
-                            Citizen.InvokeNative(0x6BAB9442830C7F53, doorID.doorid, 0)
-                        end
-                        FreezeEntityPosition(doorID.object,false)
-                        doorStatus = locale('cl_door_status_unlock')
-                    end
-                end
-            end
-
-            if distance < maxDistance then
-                if distance < 1.5 then
-                    local label = CreateVarString(10, 'LITERAL_STRING', locale('cl_door_status_base') .. ' '..doorStatus)
-
-                    PromptSetActiveGroupThisFrame(doorLockPrompt, label)
-
-                    if PromptHasHoldModeCompleted(lockPrompt) and CoolDown < 1 then
-                        CoolDown = 1000
-                        local state = not doorID.locked
-                        TriggerServerEvent("rsg-doorlock:updatedoorsv", k, state)
-                    end
-                end
-            end
-
-            if CoolDown > 0 then
-                CoolDown = CoolDown - 1
-            end
-        end
-
-        ::continue::
-
-        if letSleep then
-            Wait(500)
+            Wait(0)
+        else
+            Wait(250)
         end
     end
 end)
 
-RegisterNetEvent('rsg-doorlock:changedoor')
-AddEventHandler('rsg-doorlock:changedoor', function(doorID, state)
-    local pedCoords = GetEntityCoords(cache.ped, true)
-    local prop_name = GetHashKey('P_KEY02X')
-    local doorCoords = Config.DoorList[doorID].textCoords
-    local dx = doorCoords.x - pedCoords.x
-    local dy = doorCoords.y - pedCoords.y
-    local heading = GetHeadingFromVector_2d(dx, dy)
-    local x, y, z = table.unpack(GetEntityCoords(cache.ped, true))
-    local prop = CreateObject(prop_name, x, y, z + 0.2, true, true, true)
-    local boneIndex = GetEntityBoneIndexByName(cache.ped, "SKEL_R_Finger12")
+---------------------------------------------
+-- events
+---------------------------------------------
+RegisterNetEvent('rsg-doorlock:client:playKeyAnim', function(doorID)
+    local door = Doors[doorID]
+    if not door then return end
+    busy = true
 
-    SetPedDesiredHeading(cache.ped, heading)
+    local ped = cache.ped
+    local dict = 'script_common@jail_cell@unlock@key'
+    local pedCoords = GetEntityCoords(ped)
+    SetPedDesiredHeading(ped, GetHeadingFromVector_2d(door.textCoords.x - pedCoords.x, door.textCoords.y - pedCoords.y))
 
-    if not IsEntityPlayingAnim(cache.ped, "script_common@jail_cell@unlock@key", "action", 3) then
-        if not HasAnimDictLoaded("script_common@jail_cell@unlock@key") then
-            RequestAnimDict("script_common@jail_cell@unlock@key")
+    lib.requestAnimDict(dict)
+    TaskPlayAnim(ped, dict, 'action', 8.0, -8.0, 2500, 31, 0, true, 0, false, 0, false)
+    RemoveAnimDict(dict)
 
-            while not HasAnimDictLoaded("script_common@jail_cell@unlock@key") do
-                Wait(100)
-                RequestAnimDict("script_common@jail_cell@unlock@key")
-            end
-        end
-
-        Wait(100)
-        TaskPlayAnim(cache.ped, 'script_common@jail_cell@unlock@key', 'action', 8.0, -8.0, 2500, 31, 0, true, 0, false, 0, false)
-        RemoveAnimDict("script_common@jail_cell@unlock@key")
-        Wait(750)
-        AttachEntityToEntity(prop, cache.ped, boneIndex, 0.02, 0.0120, -0.00850, 0.024, -160.0, 200.0, true, true, false, true, 1, true)
-        Wait(250)
-        TriggerServerEvent('rsg-doorlock:updateState', doorID, state, function(cb) end)
-        Wait(1500)
-        ClearPedSecondaryTask(cache.ped)
-        DeleteObject(prop)
-    end
+    local model = `P_KEY02X`
+    lib.requestModel(model)
+    Wait(750)
+    local prop = CreateObject(model, pedCoords.x, pedCoords.y, pedCoords.z + 0.2, false, false, false)
+    SetModelAsNoLongerNeeded(model)
+    AttachEntityToEntity(prop, ped, GetEntityBoneIndexByName(ped, 'SKEL_R_Finger12'), 0.02, 0.012, -0.0085, 0.024, -160.0, 200.0, true, true, false, true, 1, true)
+    Wait(1750)
+    ClearPedSecondaryTask(ped)
+    DeleteObject(prop)
+    busy = false
 end)
 
--- Set State for a Door
-RegisterNetEvent('rsg-doorlock:setState')
-AddEventHandler('rsg-doorlock:setState', function(doorID, state)
-    Config.DoorList[doorID].locked = state
+RegisterNetEvent('rsg-doorlock:client:setState', function(doorID, locked)
+    local door = Doors[doorID]
+    if not door then return end
+    door.locked = locked
+    applyDoor(door)
+end)
+
+RegisterNetEvent('rsg-doorlock:client:syncAll', function(all)
+    Doors = all or {}
+end)
+
+-- admin created / edited / deleted a door
+RegisterNetEvent('rsg-doorlock:client:syncDoor', function(id, door, old)
+    if old then applyDoor(old, true) end -- release hashes that may no longer be managed
+    Doors[id] = door
+    if door then applyDoor(door) end
+    TriggerEvent('rsg-doorlock:client:editorRefresh')
 end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
-
-    for i = 1, #createdEntries do
-        if createdEntries[i].type == "PROMPT" then
-            PromptDelete(createdEntries[i].handle)
-        end
-    end
+    if lockPrompt then PromptDelete(lockPrompt) end
 end)

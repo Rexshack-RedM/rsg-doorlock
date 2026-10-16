@@ -1,177 +1,188 @@
-<img width="2948" height="497" alt="rsg_framework" src="https://github.com/user-attachments/assets/638791d8-296d-4817-a596-785325c1b83a" />
+# rsg-doorlock
 
-# 🚪 rsg-doorlock
-**Advanced, fully synchronized door locking system for RedM using RSG Core.**
-
-![Platform](https://img.shields.io/badge/platform-RedM-darkred)
-![License](https://img.shields.io/badge/license-GPL--3.0-green)
-
-> Lock/Unlock single or double doors with proper key animations, job-based permissions, and server-side sync.  
-> Includes jail gate handling and multi-language prompts via `ox_lib` locales.
+A database-driven door lock system for **RedM** using the **RSG Framework**. Doors are created, edited and deleted in game through an admin editor, synced to every player in real time, and logged to Discord.
 
 ---
 
-## 🛠️ Dependencies
-- [**rsg-core**](https://github.com/Rexshack-RedM/rsg-core) 🤠  
-- [**ox_lib**](https://github.com/overextended/ox_lib) ⚙️ *(notifications & locales)*  
+## Features
 
-**Locales:** `en`, `fr`, `es`, `it`, `pt-br`, `el`  
-**License:** GPL‑3.0  
+### Door locks
+- 🔒 Lock and unlock doors with a hold prompt and a key animation
+- 🗄️ All doors are stored in the database (`rsg_doorlocks`), with no config editing needed
+- 🔁 Lock states are saved and survive server restarts
+- 🌐 Real-time sync, so every player sees the same state, including players who join late
+- 🚪 Single and double doors (up to `Config.MaxDoorsPerLock` doors per lock)
+- 👮 Job-based access, with optional on-duty requirement
+- 🛡️ Admin bypass: admins can open any lock (optional)
+- 🏛️ Sisika prison front gates locked by default
 
----
+### Admin editor (`/doorlock`)
+- 🖥️ NUI editor in the RDR2 black & white leather style
+- 🔍 Searchable list of every lock (name, job or hash), sorted by nearest
+- ➕ Create, ✏️ edit and 🗑️ delete locks without restarting the resource
+- 🎯 **Point-and-select door picking**: aim at a door in the world and press ENTER
+  - Top-left HUD shows the aimed door's model and hash, the selection count and the keys
+  - Live feedback when doors are added or removed, plus a warning if a door already belongs to another lock
+  - Lines drawn to the selected and aimed doors
+  - Built-in list of ~1,750 RedM door hashes
+- 📍 Teleport to any lock
+- 🏷️ Job tag input, interaction range slider, default locked/unlocked state
 
-## ✨ Features
-- 🔒 **Server-synced locks** — state replicated for all players on toggle.
-- 👮 **Job permissions** — `authorizedJobs` restrict who can toggle each door.
-- 🚪 **Single & double doors** — use `doorid` for one door or `doors = { ... }` for pairs.
-- 🎞️ **Key unlock animation** — plays a hand-key animation with a key prop before toggling.
-- 🧭 **Per-door distance & yaw** — fine-tune interaction range and facing.
-- 🗺️ **Custom prompt position** — `textCoords` separate from `objCoords` for cleaner UX.
-- 🧑‍⚖️ **Sisika jail gates** — force-lock defined gates on resource start via `Config.JailDoors`.
-- 🌍 **Multi-language** — status strings and prompt labels via `lib.locale()`.
+### Security
+- ✅ Everything is validated on the server: player, door, distance, job, permission and input data
+- ⏱️ Server-side cooldown per player
+- 🚫 Clients never decide the lock state; the server owns it
+- 🧾 Admin actions are permission-checked and logged
+- 🧩 A door can only belong to one lock; saving a duplicate is rejected with the name of the lock that owns it
+- 🔢 Door hashes and coordinates are strictly validated (integers, finite values, map bounds)
 
----
+### Discord webhooks
+- Separate channels (or one default channel) for **Door use**, **Denied access**, **Admin actions**, **Security** and **System**
+- Rich embeds with character name, citizen ID, job and grade, server ID, Discord mention and optional licence/Steam/IP
+- Edit logs show a **before → after** list of changes
+- Security alerts for likely cheaters (non-admin editor requests, fake doors, using doors from far away) with an optional role ping
+- Rate-limit safe: batched messages, handling of Discord's 429 "too many requests" replies, and anti-spam throttles
 
-## 🧱 Architecture & Flow
+### Performance
+- Light 500ms loop, plus a per-frame loop **only** while a player stands at a door
+- The door list is sent to clients once; the seed list is server-only
 
-**Client**  
-- Creates a **hold-mode prompt** (default key: `ENTER`) grouped by `doorLockPrompt`.
-- Disables interaction if player is **dead, cuffed, hogtied or lassoed**.
-- Shows current **Door Status: Locked/Unlocked** (localized).
-- Plays **unlock key animation** and attaches prop (`P_KEY02X`) before sending update.
-- Calls `TriggerServerEvent('rsg-doorlock:updatedoorsv', idx, newState)` on hold-complete.
-- Receives `rsg-doorlock:setState` to update local `Config.DoorList[idx].locked`.
-
-**Server**  
-- Verifies permission using `authorizedJobs` and the player’s `job.name`.
-- If authorized, broadcasts `rsg-doorlock:setState` to **all clients**.
-- Otherwise, only plays the **client-side animation** via `rsg-doorlock:changedoor` response.
-
----
-
-## ⚙️ Configuration (`config.lua`)
-
-### Single door
-```lua
-{
-  authorizedJobs = { 'vallaw' },         -- who can toggle
-  doorid = 1988748538,                   -- door model hash
-  objCoords  = vector3(-276.01, 802.59, 118.41),  -- object position
-  textCoords = vector3(-276.01, 802.59, 119.41),  -- prompt position
-  objYaw = 10.0,                         -- facing (visual reference)
-  locked = true,                         -- initial state
-  distance = 3.0                         -- interact range (default ~1.25 if omitted)
-},
-```
-
-### Double doors (group)
-```lua
-{
-  textCoords = vector3(-757.27, -1269.34, 44.04),
-  authorizedJobs = { 'blklaw' },
-  locked = true,
-  distance = 3.0,
-  doors = {
-    { objYaw = 90.0, doorid = 3410720590, objCoords = vector3(-757.04, -1268.48, 43.07) },
-    { objYaw = 90.0, doorid = 160636303,  objCoords = vector3(-757.47, -1270.30, 43.05) }
-  }
-},
-```
-
-### Jail front gates (Sisika)
-```lua
-Config.JailDoors = {
-  -- these hashes are force-locked on resource start
-  906662604, 1121239638, 2617210026, 3984556459
-}
-```
-
-> 💡 **Tips**
-> - Use `textCoords` to avoid prompts spawning inside geometry.  
-> - `distance` can be reduced to prevent toggling through walls.  
-> - For double doors, put both halves in the same `doors = { ... }` group.
+### Languages
+`en`, `de`, `el`, `es`, `fr`, `ja`, `nl`, `pl`, `pt-br`, `ro` (ox_lib locales: game text, editor UI **and** Discord logs)
 
 ---
 
-## 🧩 Native Door Handling (under the hood)
+## Dependencies
 
-This resource uses RDR2 **door system natives** to ensure consistent locking:  
-- `0xD99229FE93B46286` — add/define door to door system  
-- `0x6BAB9442830C7F53` — set door state (0 = unlocked, 3 = locked)  
-- `0x160AA1B32F6139B8` — get door system state  
-- `0xB6E6FBA95C7324AC` — freeze door entity position when locked
-
-You normally **don’t need** to call these yourself — just configure `Config.DoorList`.
+- [rsg-core](https://github.com/Rexshack-RedM/rsg-core)
+- [ox_lib](https://github.com/overextended/ox_lib)
+- [oxmysql](https://github.com/overextended/oxmysql)
 
 ---
 
-## 🧪 Events & API
+## Installation
 
-### Client → Server
-```lua
--- after playing key animation (hold prompt complete)
-TriggerServerEvent('rsg-doorlock:updatedoorsv', doorIndex, newState)
-```
-
-### Server → Client
-```lua
--- authorize and broadcast new state
-TriggerClientEvent('rsg-doorlock:setState', -1, doorIndex, newState)
-
--- fallback: play animation only (no state change) for the caller
-TriggerClientEvent('rsg-doorlock:changedoor', src, doorIndex, newState)
-```
-
-### Client (handlers)
-```lua
-RegisterNetEvent('rsg-doorlock:changedoor')  -- plays key animation, then requests update
-RegisterNetEvent('rsg-doorlock:setState')    -- applies locked/unlocked status locally
-```
-
----
-
-## 🔐 Permissions
-Access is controlled per door via `authorizedJobs`.  
-Jobs are resolved from `RSGCore.Functions.GetPlayer(src).PlayerData.job.name`.
-
-**Examples:**  
-- Sheriff stations: `vallaw`, `rholaw`, `blklaw`, `stdenlaw`, etc.  
-- Private interiors: create a custom job or add multiple jobs to `authorizedJobs`.
-
----
-
-## 📂 Installation
-1. Place `rsg-doorlock` inside your `resources/[rsg]` folder.  
-2. Ensure `rsg-core` and `ox_lib` are installed.  
-3. Add to your `server.cfg`:
+1. Download and place `rsg-doorlock` in your resources folder, e.g. `resources/[rsg]/rsg-doorlock`.
+2. *(Optional)* Run `rsg_doorlocks.sql` on your database. The resource also creates the table automatically on first start.
+3. Make sure the resource starts **after** its dependencies in your `server.cfg`:
    ```cfg
+   ensure oxmysql
    ensure ox_lib
    ensure rsg-core
    ensure rsg-doorlock
    ```
-4. Restart your server.
+4. Set your language in `server.cfg` (ox_lib):
+   ```cfg
+   setr ox:locale en
+   ```
+5. *(Optional)* Add your Discord webhook URLs in `server/sv_config.lua`.
+6. Start the server. On first start, the doors in `server/seed_doors.lua` (Valentine, Rhodes, Blackwater, Strawberry, Saint Denis and Sisika) are imported into the database **once**.
+
+### Upgrading from 1.x (config-based)
+Your old `Config.DoorList` doors now live in `server/seed_doors.lua` and are imported automatically when the `rsg_doorlocks` table is empty. After that, manage everything in game. Other resources that triggered the old `rsg-doorlock:updatedoorsv` / `rsg-doorlock:updateState` events need updating.
 
 ---
 
-## 🌍 Locales
-Included: `en`, `fr`, `es`, `it`, `pt-br`, `el`  
-Loaded automatically via `lib.locale()` with keys:
-- `sv_nokey` → “You do not have a key!”  
-- `cl_use_door` → “Use”, `cl_door_status_base` → “Door Status: ”  
-- `cl_door_status_lock` / `cl_door_status_unlock`
+## Configuration
+
+### `config.lua` (shared)
+
+| Option | Default | Description |
+|---|---|---|
+| `Config.DefaultDistance` | `1.25` | Interaction range for new locks |
+| `Config.DistanceTolerance` | `2.0` | Extra server-side leeway on the distance check (latency) |
+| `Config.SyncDistance` | `30.0` | Doors within this range are kept in their synced state |
+| `Config.Cooldown` | `1500` | Milliseconds between door uses per player (server enforced) |
+| `Config.RequireOnDuty` | `false` | Player must be on duty to use job doors |
+| `Config.AdminPermission` | `'admin'` | RSG permission for the editor (`god`, `developer`, `headadmin`, `admin`, `mod`) |
+| `Config.AdminCommand` | `'doorlock'` | Command that opens the editor |
+| `Config.AdminBypass` | `true` | Admins can open every lock, including ones with no jobs |
+| `Config.MaxDoorsPerLock` | `8` | Maximum doors in a single lock |
+| `Config.PickRange` | `2.0` | How close your aim must be to a door to select it |
+| `Config.ImportConfigDoors` | `true` | Import `server/seed_doors.lua` when the table is empty |
+| `Config.JailDoors` | Sisika gates | Door hashes that are always locked |
+
+### `server/sv_config.lua` (server only, webhooks)
+
+> ⚠️ This file contains your webhook URLs. Never move it to `shared_scripts`, and don't commit real URLs to a public repository.
+
+```lua
+SvConfig.Webhooks = {
+    Enabled    = true,
+    BotName    = 'Door Locks',
+    AvatarUrl  = '',
+    ServerName = 'RSG RedM',
+
+    Urls = {
+        Default  = 'https://discord.com/api/webhooks/...', -- used when a type below is empty
+        DoorUse  = '',
+        Denied   = '',
+        Admin    = '',
+        Security = '',
+        System   = '',
+    },
+
+    Log = { DoorUse = true, Denied = true, Admin = true, Security = true, System = true },
+
+    SecurityMention = '<@&ROLE_ID>', -- ping a role on security alerts ('' = off)
+    DeniedThrottle  = 60,            -- seconds between Denied logs per player per door
+
+    ShowLicense = true, ShowDiscord = true, ShowSteam = false, ShowIp = false,
+}
+```
+
+### Locales
+All text lives in `locales/*.json`. To change any wording, edit the key in your language file. To add a language, copy `en.json` to e.g. `sv.json`, translate the values (keep each `%s`), and set `setr ox:locale sv`.
 
 ---
 
-## 🧠 Troubleshooting
-- **Prompt doesn’t show** → Check `textCoords` and increase `distance`.  
-- **Can toggle without keys** → Make sure your player’s `job.name` isn’t in `authorizedJobs`.  
-- **Doors don’t move** → Verify `doorid` hashes and world positions. Some interiors use **different door models** per map.  
-- **Rapid spam** → A small **cooldown** is applied client-side after a toggle. Reduce `distance` if needed.
+## Usage
+
+### Players
+1. Walk up to a managed door. A **Door Status: Locked / Unlocked** prompt appears.
+2. **Hold ENTER** to lock or unlock it. Your character uses a key and you get a confirmation notification.
+3. You need one of the lock's authorised jobs (and to be on duty, if `RequireOnDuty` is on).
+
+### Admins: creating a lock
+1. Type **`/doorlock`** to open the editor.
+2. Click **+ New Lock**.
+3. Enter a **name**, add **jobs** (type a job, press Enter), set the **interaction range** and the **starting state**.
+   - Leave jobs empty to make a door nobody can open (e.g. prison doors).
+4. Click **Select doors in world**. The editor hides and the HUD appears top-left:
+   - **Aim** at a door and its model and hash show in the HUD.
+   - **ENTER**: add or remove the aimed door
+   - **BACKSPACE**: finish and return to the editor
+   - For double doors, add **both** sides.
+5. Click **Save**. The lock is live for everyone immediately.
+
+### Admins: managing locks
+- **Edit**: click a lock in the list, change anything (including reselecting doors), then **Save**.
+- **Delete**: open a lock, click **Delete** and confirm. Its doors are unlocked for everyone.
+- **Teleport**: click the ➤ button on a lock row.
+- **Search**: filter by name, job or door hash.
+- **ESC**: steps back (modal → form → list → close).
 
 ---
 
-## 💎 Credits
-- **RSG / Rexshack-RedM** — base framework & adaptation  
-- Inspired by **QR-Doorlock** — refactored for RSG compatibility  
-- Community contributors & translators  
-- License: GPL‑3.0  
+## Exports / events
+
+| Event | Side | Description |
+|---|---|---|
+| `rsg-doorlock:client:setState` (`doorId`, `locked`) | client | Fired to all clients when a door changes state |
+| `rsg-doorlock:client:syncDoor` (`id`, `door`, `old`) | client | Fired when an admin creates, edits or deletes a lock |
+
+---
+
+## Credits
+- Door hash data: [femga/rdr3_discoveries](https://github.com/femga/rdr3_discoveries)
+- RSG Framework: [Rexshack-RedM](https://github.com/Rexshack-RedM)
+
+---
+
+## Support
+
+If you find this resource useful, consider supporting development:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/rexshack)
+
+☕ **https://buymeacoffee.com/rexshack**
