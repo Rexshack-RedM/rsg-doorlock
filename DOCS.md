@@ -130,4 +130,4 @@ Set URLs in `server/sv_config.lua` (`SvConfig.Webhooks`). Separate channels, or 
 | Table not created | Import `installation/rsg_doorlocks.sql` |
 | Editor won't open | You need `Config.AdminPermission` |
 
-Support: https://buymeacoffee.com/rexshack
+Support the Project : https://rexshack.tebex.store/
